@@ -15,6 +15,9 @@ class ArticlesTable extends Table
   {
     $this->addBehavior('Timestamp');
     $this->belongsToMany('Tags');
+    $this->belongsTo('Users')
+    ->setForeignKey('user_id')
+    ->setJoinType('INNER');
   }
 
   public function beforeSave($event, $entity, $options){

@@ -3,17 +3,25 @@
 
 namespace App\Controller;
 
+use App\Controller\Controller;
+use Cake\ORM\TableRegistry;
+
 class ArticlesController extends AppController{
 
   public function initialize(){
     parent::initialize();
 
+    $this->Auth->allow(['tags']);
     $this->loadComponent('Paginator');
     $this->loadComponent('Flash'); // FlashComponent をインクルード
   }
 
   public function index(){
-    $articles = $this->Paginator->paginate($this->Articles->find());
+    $query = TableRegistry::get('Articles');
+    $data = $query->find('all', ['contain' => ['Users']]);
+    // pr($data);
+
+    $articles = $this->Paginator->paginate($data);
     $this->set(compact('articles'));
   }
 
@@ -27,8 +35,8 @@ class ArticlesController extends AppController{
     if ($this->request->is('post')) {
       $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-      // user_id の決め打ちは一時的なもので、あとで認証を構築する際に削除されます。
-      $article->user_id = 1;
+      // 変更: セッションから user_id をセット
+      $article->user_id = $this->Auth->user('id');
 
       if ($this->Articles->save($article)) {
         $this->Flash->success(__('Your article has been saved.'));
@@ -47,17 +55,21 @@ class ArticlesController extends AppController{
 
   public function edit($slug){
     $article = $this->Articles
-                    ->findBySlug($slug)
-                    ->contain('Tags') // 関連づけられた Tags を読み込む
-                    ->firstOrFail();
+    ->findBySlug($slug)
+    ->contain('Tags') // 関連づけられた Tags を読み込む
+    ->firstOrFail();
     if ($this->request->is(['post', 'put'])) {
-      $this->Articles->patchEntity($article, $this->request->getData());
+      $this->Articles->patchEntity($article, $this->request->getData(), [
+        // 追加: user_id の更新を無効化
+        'accessibleFields' => ['user_id' => false]
+      ]);
       if ($this->Articles->save($article)) {
         $this->Flash->success(__('Your article has been updated.'));
         return $this->redirect(['action' => 'index']);
       }
       $this->Flash->error(__('Unable to update your article.'));
     }
+    $this->set('article', $article);
 
     // タグのリストを取得
     $tags = $this->Articles->Tags->find('list');
@@ -65,7 +77,6 @@ class ArticlesController extends AppController{
     // ビューコンテキストに tags をセット
     $this->set('tags', $tags);
 
-    $this->set('article', $article);
   }
 
   public function delete($slug){
@@ -93,6 +104,25 @@ class ArticlesController extends AppController{
       'articles' => $articles,
       'tags' => $tags
     ]);
+  }
+
+  public function isAuthorized($user){
+    $action = $this->request->getParam('action');
+    // add および tags アクションは、常にログインしているユーザーに許可されます。
+    if (in_array($action, ['add', 'tags'])) {
+      return true;
+    }
+
+    // 他のすべてのアクションにはスラッグが必要です。
+    $slug = $this->request->getParam('pass.0');
+    if (!$slug) {
+      return false;
+    }
+
+    // 記事が現在のユーザーに属していることを確認します。
+    $article = $this->Articles->findBySlug($slug)->first();
+
+    return $article->user_id === $user['id'];
   }
 }
 ?>
