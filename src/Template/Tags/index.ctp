@@ -4,16 +4,18 @@
  * @var \App\Model\Entity\Tag[]|\Cake\Collection\CollectionInterface $tags
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
+<!-- 左メニューのテンプレート読み込み -->
+<?= $this->element('leftForm') ?>
+<!-- <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Tag'), ['action' => 'add']) ?></li>
         <li><?= $this->Html->link(__('List Articles'), ['controller' => 'Articles', 'action' => 'index']) ?></li>
         <li><?= $this->Html->link(__('New Article'), ['controller' => 'Articles', 'action' => 'add']) ?></li>
     </ul>
-</nav>
+</nav> -->
 <div class="tags index large-9 medium-8 columns content">
-    <h3><?= __('Tags') ?></h3>
+    <h3><?= __('タグ一覧') ?></h3>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
@@ -29,12 +31,12 @@
             <tr>
                 <td><?= $this->Number->format($tag->id) ?></td>
                 <td><?= h($tag->title) ?></td>
-                <td><?= h($tag->created) ?></td>
-                <td><?= h($tag->modified) ?></td>
+                <td><?= h($tag->created->i18nFormat('YYYY/MM/dd HH:mm:ss')) ?></td>
+                <td><?= h($tag->modified->i18nFormat('YYYY/MM/dd HH:mm:ss')) ?></td>
                 <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $tag->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $tag->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $tag->id], ['confirm' => __('Are you sure you want to delete # {0}?', $tag->id)]) ?>
+                    <?= $this->Html->link(__('詳細'), ['action' => 'view', $tag->id]) ?>
+                    <?= $this->Html->link(__('修正'), ['action' => 'edit', $tag->id]) ?>
+                    <?= $this->Form->postLink(__('削除'), ['action' => 'delete', $tag->id], ['confirm' => __('Are you sure you want to delete # {0}?', $tag->id)]) ?>
                 </td>
             </tr>
             <?php endforeach; ?>

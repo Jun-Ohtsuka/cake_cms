@@ -14,7 +14,11 @@ class ArticlesTable extends Table
   public function initialize(array $config)
   {
     $this->addBehavior('Timestamp');
-    $this->belongsToMany('Tags');
+    $this->belongsToMany('Tags', [
+      'foreignKey' => 'article_id',
+      'targetForeignKey' => 'tag_id',
+      'joinTable' => 'articles_tags'
+    ]);
     $this->belongsTo('Users')
     ->setForeignKey('user_id')
     ->setJoinType('INNER');

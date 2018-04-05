@@ -48,8 +48,8 @@ class AppController extends Controller
       'authenticate' => [
         'Form' => [
           'fields' => [
-            'username' => 'email',
-            //'email' => 'email',
+            'username' => 'name',
+            // 'username' => 'email',
             'password' => 'password'
           ]
         ]
@@ -64,7 +64,7 @@ class AppController extends Controller
 
     // display アクションを許可して、PagesController が引き続き
     // 動作するようにします。また、読み取り専用のアクションを有効にします。
-    $this->Auth->allow(['display', 'view', 'index']);
+    $this->Auth->allow(['display']);
 
     /*
     * Enable the following components for recommended CakePHP security settings.

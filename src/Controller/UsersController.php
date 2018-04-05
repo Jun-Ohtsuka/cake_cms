@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
 
 /**
 * Users Controller
@@ -18,7 +19,10 @@ class UsersController extends AppController{
   * @return \Cake\Http\Response|void
   */
   public function index(){
-    $users = $this->paginate($this->Users);
+
+    $query = TableRegistry::get('Users');
+    $data = $query->find('all', ['contain' => ['roles']]);
+    $users = $this->paginate($data);
 
     $this->set(compact('users'));
   }
@@ -104,7 +108,7 @@ class UsersController extends AppController{
       $user = $this->Auth->identify();
       if ($user) {
         $this->Auth->setUser($user);
-      return $this->redirect('../../home/'/*$this->Auth->redirectUrl()*/);
+      return $this->redirect('../../articles/'/*$this->Auth->redirectUrl()*/);
       }
       $this->Flash->error('ユーザー名またはパスワードが不正です。');
     }
@@ -112,11 +116,30 @@ class UsersController extends AppController{
 
   public function initialize(){
     parent::initialize();
-    $this->Auth->allow(['logout', 'add']);
+    $this->Auth->allow(['display', 'logout']);
   }
 
   public function logout(){
     $this->Flash->success('ログアウトしました。');
     return $this->redirect($this->Auth->logout());
+  }
+
+  public function isAuthorized($user){
+    // pr($user);
+    $action = $this->request->getParam('action');
+    // add アクションは、常にログインしているユーザーに許可されます。
+    if (in_array($action, ['add', 'view', 'index'])) {
+      return true;
+    }
+
+    //delete アクションは管理者ユーザにのみ許可される。
+    if (in_array($action, ['delete'])) {
+      return $user['role_id'] === 1;
+    }
+
+    // 他のすべてのアクションにはログインユーザと対象ユーザが同じである必要がある
+    $id = (int)$this->request->getParam('pass.0');
+
+    return $id === $user['id'];
   }
 }

@@ -11,14 +11,22 @@ class ArticlesController extends AppController{
   public function initialize(){
     parent::initialize();
 
-    $this->Auth->allow(['tags']);
+    $this->Auth->allow(['display', 'tags']);
     $this->loadComponent('Paginator');
     $this->loadComponent('Flash'); // FlashComponent をインクルード
+
+    //ログイン状態のチェック TODO 共通化したい
+    $this->loadComponent('Check');
+    // $this->Check->checkLogin($this->Auth->user('name'));
+    // $name = $this->Auth->user('name');
+    // if(empty($name)){
+    //   return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+    // }
   }
 
   public function index(){
     $query = TableRegistry::get('Articles');
-    $data = $query->find('all', ['contain' => ['Users']]);
+    $data = $query->find('all', ['contain' => ['Users', 'Tags']]);
     // pr($data);
 
     $articles = $this->Paginator->paginate($data);
@@ -93,6 +101,7 @@ class ArticlesController extends AppController{
     // 'pass' キーは CakePHP によって提供され、リクエストに渡された
     // 全ての URL パスセグメントを含みます。
     $tags = $this->request->getParam('pass');
+    pr($this->request->query['pass']);
 
     // ArticlesTable を使用してタグ付きの記事を検索します。
     $articles = $this->Articles->find('tagged', [
@@ -109,7 +118,7 @@ class ArticlesController extends AppController{
   public function isAuthorized($user){
     $action = $this->request->getParam('action');
     // add および tags アクションは、常にログインしているユーザーに許可されます。
-    if (in_array($action, ['add', 'tags'])) {
+    if (in_array($action, ['add', 'tags', 'view', 'index'])) {
       return true;
     }
 
@@ -117,6 +126,11 @@ class ArticlesController extends AppController{
     $slug = $this->request->getParam('pass.0');
     if (!$slug) {
       return false;
+    }
+
+    //管理者ユーザはすべてのアクションが許可される。
+    if ($user['role_id'] === 1) {
+      return true;
     }
 
     // 記事が現在のユーザーに属していることを確認します。

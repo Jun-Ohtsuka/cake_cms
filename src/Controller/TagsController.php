@@ -106,4 +106,23 @@ class TagsController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    public function isAuthorized($user){
+      $action = $this->request->getParam('action');
+      // add アクションは、常にログインしているユーザーに許可されます。
+      if (in_array($action, ['add', 'view', 'index'])) {
+        return true;
+      }
+
+      //delete アクションは管理者ユーザにのみ許可される。
+      //debug(pr($user));
+      if (in_array($action, ['delete'])) {
+        return false;//$user['role_id'] === 1;
+      }
+
+      // 他のすべてのアクションにはログインユーザと対象ユーザが同じである必要がある
+      $id = (int)$this->request->getParam('pass.0');
+
+      return $id === $user['id'];
+    }
 }

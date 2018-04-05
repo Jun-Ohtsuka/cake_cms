@@ -39,6 +39,13 @@ class UsersTable extends Table
     $this->setPrimaryKey('id');
 
     $this->addBehavior('Timestamp');
+
+    $this->hasMany('Articles', [
+      'foreignKey' => 'user_id'
+    ]);
+    $this->belongsTo('Roles')
+    ->setForeignKey('id')
+    ->setJoinType('INNER');
   }
 
   /**

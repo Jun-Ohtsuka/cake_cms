@@ -13,12 +13,13 @@
     <thead>
       <tr>
         <th scope="col"><?= $this->Paginator->sort('id') ?></th>
-        <th scope="col"><?= $this->Paginator->sort('name') ?></th>
-        <th scope="col"><?= $this->Paginator->sort('email') ?></th>
-        <th scope="col"><?= $this->Paginator->sort('password') ?></th>
-        <th scope="col"><?= $this->Paginator->sort('created') ?></th>
-        <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
-        <th scope="col" class="actions"><?= __('Actions') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('名前') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('権限') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('メールアドレス') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('パスワード') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('登録日') ?></th>
+        <th scope="col"><?= $this->Paginator->sort('更新日') ?></th>
+        <th scope="col" class="actions"><?= __('操作') ?></th>
       </tr>
     </thead>
     <tbody>
@@ -26,10 +27,11 @@
         <tr>
           <td><?= $this->Number->format($user->id) ?></td>
           <td><?= $this->Html->link($user->name, ['action' => 'view', $user->id]) ?></td>
+          <td><?= h($user->Roles['name']) ?></td>
           <td><?= h($user->email) ?></td>
           <td><?= h($user->password) ?></td>
-          <td><?= h($user->created) ?></td>
-          <td><?= h($user->modified) ?></td>
+          <td><?= h($user->created->i18nFormat('YYYY/MM/dd HH:mm:ss')) ?></td>
+          <td><?= h($user->modified->i18nFormat('YYYY/MM/dd HH:mm:ss')) ?></td>
           <td class="actions">
             <?= $this->Html->link(__('詳細'), ['action' => 'view', $user->id]) ?>
             <?= $this->Html->link(__('修正'), ['action' => 'edit', $user->id]) ?>
