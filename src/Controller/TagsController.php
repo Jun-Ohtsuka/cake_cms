@@ -115,14 +115,8 @@ class TagsController extends AppController
       }
 
       //delete アクションは管理者ユーザにのみ許可される。
-      //debug(pr($user));
       if (in_array($action, ['delete'])) {
-        return false;//$user['role_id'] === 1;
+        return $user['role_id'] === 1;
       }
-
-      // 他のすべてのアクションにはログインユーザと対象ユーザが同じである必要がある
-      $id = (int)$this->request->getParam('pass.0');
-
-      return $id === $user['id'];
     }
 }

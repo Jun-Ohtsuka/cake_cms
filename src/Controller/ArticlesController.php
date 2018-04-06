@@ -5,23 +5,17 @@ namespace App\Controller;
 
 use App\Controller\Controller;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Hash;
 
 class ArticlesController extends AppController{
 
   public function initialize(){
     parent::initialize();
 
-    $this->Auth->allow(['display', 'tags']);
+    $this->Auth->allow(['display']);
     $this->loadComponent('Paginator');
     $this->loadComponent('Flash'); // FlashComponent をインクルード
-
-    //ログイン状態のチェック TODO 共通化したい
-    $this->loadComponent('Check');
-    // $this->Check->checkLogin($this->Auth->user('name'));
-    // $name = $this->Auth->user('name');
-    // if(empty($name)){
-    //   return $this->redirect(['controller' => 'Users', 'action' => 'login']);
-    // }
+    $this->loadComponent('Check'); //自作componentをインクルード
   }
 
   public function index(){
@@ -98,11 +92,15 @@ class ArticlesController extends AppController{
   }
 
   public function tags(){
-    // 'pass' キーは CakePHP によって提供され、リクエストに渡された
-    // 全ての URL パスセグメントを含みます。
-    $tags = $this->request->getParam('pass');
-    pr($this->request->query['pass']);
-
+    //送信されたname=passの文字列を取得する
+    $strPass = $this->request->query['pass'];
+    $exploded = $this->Check->multiexplode([' ', '　', ',', '	'], $strPass);
+    // pr($exploded);
+    
+    //空要素を削除し、keyを再番する
+    $tags = array_merge(Hash::filter($exploded));
+    // pr($tags);
+    
     // ArticlesTable を使用してタグ付きの記事を検索します。
     $articles = $this->Articles->find('tagged', [
       'tags' => $tags

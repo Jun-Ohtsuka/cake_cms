@@ -127,7 +127,7 @@ class UsersController extends AppController{
   public function isAuthorized($user){
     // pr($user);
     $action = $this->request->getParam('action');
-    // add アクションは、常にログインしているユーザーに許可されます。
+    // userアクションは常にログインしているユーザーに許可されます。
     if (in_array($action, ['add', 'view', 'index'])) {
       return true;
     }
