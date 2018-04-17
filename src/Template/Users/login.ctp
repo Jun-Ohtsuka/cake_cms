@@ -1,3 +1,4 @@
+<!-- <?= $this->extend('../Layout/TwitterBootstrap/signin'); ?> -->
 <h1>ログイン</h1>
 <?= $this->Form->create() ?>
 <?= $this->Form->control('name') ?>

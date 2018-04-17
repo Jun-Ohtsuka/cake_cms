@@ -5,11 +5,10 @@
 */
 ?>
 <!-- 左メニューのテンプレート読み込み -->
-<?= $this->element('leftForm') ?>
-<div class="users index large-9 medium-8 columns content">
-  <h3><?= __('ユーザ一覧') ?></h3>
+<?= $this->element('menuForm') ?>
+  <h3 style="padding:60px 0 0 0"><?= __('ユーザ一覧') ?></h3>
   <p><?= $this->Html->link(__('ユーザ新規作成'), ['action' => 'add']) ?></p>
-  <table cellpadding="0" cellspacing="0">
+  <table cellpadding="0" cellspacing="0" class="table">
     <thead>
       <tr>
         <th scope="col"><?= $this->Paginator->sort('id') ?></th>
@@ -51,4 +50,3 @@
     </ul>
     <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
   </div>
-</div>

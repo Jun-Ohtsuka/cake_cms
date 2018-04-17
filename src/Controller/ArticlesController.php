@@ -7,9 +7,10 @@ use App\Controller\Controller;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
-class ArticlesController extends AppController{
-
-  public function initialize(){
+class ArticlesController extends AppController
+{
+  public function initialize()
+  {
     parent::initialize();
 
     $this->Auth->allow(['display']);
@@ -18,7 +19,8 @@ class ArticlesController extends AppController{
     $this->loadComponent('Check'); //自作componentをインクルード
   }
 
-  public function index(){
+  public function index()
+  {
     $query = TableRegistry::get('Articles');
     $data = $query->find('all', ['contain' => ['Users', 'Tags']]);
     // pr($data);
@@ -27,12 +29,14 @@ class ArticlesController extends AppController{
     $this->set(compact('articles'));
   }
 
-  public function view($slug){
+  public function view($slug)
+  {
     $article = $this->Articles->findBySlug($slug)->firstOrFail();
     $this->set(compact('article'));
   }
 
-  public function add(){
+  public function add()
+  {
     $article = $this->Articles->newEntity();
     if ($this->request->is('post')) {
       $article = $this->Articles->patchEntity($article, $this->request->getData());
@@ -55,16 +59,14 @@ class ArticlesController extends AppController{
     $this->set('article', $article);
   }
 
-  public function edit($slug){
-    $article = $this->Articles
-    ->findBySlug($slug)
-    ->contain('Tags') // 関連づけられた Tags を読み込む
-    ->firstOrFail();
+  public function edit($slug)
+  {
+    // 関連づけられた Tags を読み込む
+    $article = $this->Articles->findBySlug($slug)->contain('Tags')->firstOrFail();
+
     if ($this->request->is(['post', 'put'])) {
-      $this->Articles->patchEntity($article, $this->request->getData(), [
-        // 追加: user_id の更新を無効化
-        'accessibleFields' => ['user_id' => false]
-      ]);
+      //user_idの更新を無効化
+      $this->Articles->patchEntity($article, $this->request->getData(), ['accessibleFields' => ['user_id' => false]]);
       if ($this->Articles->save($article)) {
         $this->Flash->success(__('Your article has been updated.'));
         return $this->redirect(['action' => 'index']);
@@ -78,10 +80,10 @@ class ArticlesController extends AppController{
 
     // ビューコンテキストに tags をセット
     $this->set('tags', $tags);
-
   }
 
-  public function delete($slug){
+  public function delete($slug)
+  {
     $this->request->allowMethod(['post', 'delete']);
 
     $article = $this->Articles->findBySlug($slug)->firstOrFail();
@@ -91,29 +93,26 @@ class ArticlesController extends AppController{
     }
   }
 
-  public function tags(){
+  public function tags()
+  {
     //送信されたname=passの文字列を取得する
     $strPass = $this->request->query['pass'];
     $exploded = $this->Check->multiexplode([' ', '　', ',', '	'], $strPass);
     // pr($exploded);
-    
+
     //空要素を削除し、keyを再番する
     $tags = array_merge(Hash::filter($exploded));
     // pr($tags);
-    
+
     // ArticlesTable を使用してタグ付きの記事を検索します。
-    $articles = $this->Articles->find('tagged', [
-      'tags' => $tags
-    ]);
+    $articles = $this->Articles->find('tagged', ['tags' => $tags]);
 
     // 変数をビューテンプレートのコンテキストに渡します。
-    $this->set([
-      'articles' => $articles,
-      'tags' => $tags
-    ]);
+    $this->set(['articles' => $articles, 'tags' => $tags]);
   }
 
-  public function isAuthorized($user){
+  public function isAuthorized($user)
+  {
     $action = $this->request->getParam('action');
     // add および tags アクションは、常にログインしているユーザーに許可されます。
     if (in_array($action, ['add', 'tags', 'view', 'index'])) {
@@ -137,4 +136,3 @@ class ArticlesController extends AppController{
     return $article->user_id === $user['id'];
   }
 }
-?>
